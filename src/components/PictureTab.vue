@@ -1,0 +1,7 @@
+<script setup lang="ts"></script>
+
+<template>
+  <div>图片</div>
+</template>
+
+<style scoped></style>
