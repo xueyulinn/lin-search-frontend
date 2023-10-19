@@ -5,7 +5,7 @@
         <a-list-item>
           <a-list-item-meta :description="item.content">
             <template #title>
-              <a href="https://www.antdv.com/">{{ item.title }}</a>
+              <a>{{ item.title }}</a>
             </template>
             <template #avatar>
               <a-avatar src="https://joeschmoe.io/api/v1/random" />
@@ -18,10 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import myAxios from "@/plugins/myAxios";
 import { withDefaults, defineProps } from "vue";
-
-myAxios.get("/post/get/vo");
 
 interface Props {
   postList: any[];
