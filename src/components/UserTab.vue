@@ -2,16 +2,17 @@
   <div>
     <a-list item-layout="horizontal" :data-source="props.userList">
       <template #renderItem="{ item }">
-        <a-list-item>
-          <a-list-item-meta :description="item.content">
-            <template #title>
-              <a>{{ item.title }}</a>
-            </template>
-            <template #avatar>
-              <a-avatar src="item.user" />
-            </template>
-          </a-list-item-meta>
-        </a-list-item>
+        <a-card hoverable style="width: 240px">
+          <template #cover>
+            <img
+              alt="example"
+              src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
+            />
+          </template>
+          <a-card-meta :title="item.userName">
+            <template #description> {{ item.userProfile }} </template>
+          </a-card-meta>
+        </a-card>
       </template>
     </a-list>
   </div>

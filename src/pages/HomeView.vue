@@ -23,13 +23,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { ref, watch, watchEffect } from "vue";
 import PostTab from "@/components/PostTab.vue";
 import PictureTab from "@/components/PictureTab.vue";
 import UserTab from "@/components/UserTab.vue";
 import router from "@/router";
 import { useRoute } from "vue-router";
 import myAxios from "@/plugins/myAxios";
+import { message } from "ant-design-vue";
 
 const route = useRoute();
 const postRecords = ref([]);
@@ -41,50 +42,29 @@ const pictureRecords = ref([]);
  * @param params
  */
 const loadData = (params: any) => {
-  myAxios
-    .post("/post/list/page/vo", params)
-    .then((res) => (postRecords.value = res.data.data.records));
+  const { type } = params;
 
-  const userQuery = {
-    ...params,
-    userName: params.searchText,
-  };
+  if (!type) {
+    message.error("类别为空");
+    return;
+  }
 
-  myAxios
-    .post("/user/list/page/vo", userQuery)
-    .then((res) => (userRecords.value = res.data.data.records));
-
-  myAxios
-    .post("/picture/list/page/vo", params)
-    .then((res) => (pictureRecords.value = res.data.data.records));
+  myAxios.post("/search/all", params).then((res) => {
+    if (params.type === "Post") {
+      postRecords.value = res.data.data.postList.records;
+    } else if (params.type === "User") {
+      userRecords.value = res.data.data.userList.records;
+    } else if (params.type === "Picture") {
+      pictureRecords.value = res.data.data.pictureList.records;
+    }
+  });
 };
 
-/*const loadDataOld = (params: any) => {
-  myAxios
-    .post("/post/list/page/vo", params)
-    .then((res) => (postRecords.value = res.data.data.records));
-
-  const userQuery = {
-    ...params,
-    userName: params.searchText,
-  };
-
-  myAxios
-    .post("/user/list/page/vo", userQuery)
-    .then((res) => (userRecords.value = res.data.data.records));
-
-  myAxios
-    .post("/picture/list/page/vo", params)
-    .then((res) => (pictureRecords.value = res.data.data.records));
-};*/
-
-const loadDataNew = (params: any) => {
-  myAxios
-    .post("/search/all", params)
-    .then((res) => (postRecords.value = res.data.data.records));
-};
+// 这个是获取动态路由
+const activeKey = route.params.category;
 
 const initSearch = {
+  type: activeKey,
   searchText: "",
   page: "1",
   pageSize: "10",
@@ -92,18 +72,23 @@ const initSearch = {
 
 const param = ref(initSearch);
 
-/**
- * 首次请求
- */
-loadData(param.value);
-
-// 这个是获取动态路由
-const activeKey = route.params.category;
-
 //watchEffect里的响应式变量发生变化时 重新执行函数  这里是 route.query.searchText， 会把param.value的值更新为初始值，并覆盖text值
-watchEffect(() => {
-  param.value.searchText = route.query.searchText || "";
-});
+
+//当tab栏变化时 进行搜索
+watch(
+  () => route.params.category,
+  (newCategory) => {
+    param.value.type = newCategory;
+    loadData(param.value);
+  }
+);
+
+watch(
+  () => route.query.searchText,
+  (newSearchText) => {
+    param.value.searchText = newSearchText || "";
+  }
+);
 
 const onSearch = () => {
   router.push({
