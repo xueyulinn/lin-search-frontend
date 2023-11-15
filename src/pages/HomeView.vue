@@ -49,13 +49,14 @@ const loadData = (params: any) => {
     return;
   }
 
-  myAxios.post("/search/all", params).then((res) => {
+  myAxios.post("/search/all", params).then((res: any) => {
+    const records = res.data.data.page.records;
     if (params.type === "Post") {
-      postRecords.value = res.data.data.postList.records;
+      postRecords.value = records;
     } else if (params.type === "User") {
-      userRecords.value = res.data.data.userList.records;
+      userRecords.value = records;
     } else if (params.type === "Picture") {
-      pictureRecords.value = res.data.data.pictureList.records;
+      pictureRecords.value = records;
     }
   });
 };
