@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-list item-layout="horizontal" :data-source="props.userList">
+    <a-list :grid="{ gutter: 32, column: 3 }" :data-source="props.userList">
       <template #renderItem="{ item }">
         <a-card hoverable style="width: 240px">
           <template #cover>
@@ -37,7 +37,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  postList: () => [],
+  userList: () => [],
   totalItems: 0,
 });
 
