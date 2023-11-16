@@ -11,13 +11,25 @@
 
   <a-tabs v-model:activeKey="activeKey" @change="onChange">
     <a-tab-pane key="Post" tab="文章">
-      <PostTab :post-list="postRecords" />
+      <PostTab
+        :post-list="postRecords"
+        :total-items="totalItems"
+        @page-change="handlePageChange"
+      />
     </a-tab-pane>
     <a-tab-pane key="Picture" tab="图片" force-render>
-      <PictureTab :picture-list="pictureRecords" />
+      <PictureTab
+        :picture-list="pictureRecords"
+        :total-items="totalItems"
+        @page-change="handlePageChange"
+      />
     </a-tab-pane>
     <a-tab-pane key="User" tab="用户">
-      <UserTab :user-list="userRecords" />
+      <UserTab
+        :user-list="userRecords"
+        :total-items="totalItems"
+        @page-change="handlePageChange"
+      />
     </a-tab-pane>
   </a-tabs>
 </template>
@@ -36,6 +48,9 @@ const route = useRoute();
 const postRecords = ref([]);
 const userRecords = ref([]);
 const pictureRecords = ref([]);
+const currentPage = ref(1);
+const pageSize = ref(9);
+const totalItems = ref(0);
 
 /**
  * 加载数据
@@ -50,7 +65,7 @@ const loadData = (params: any) => {
   }
 
   myAxios.post("/search/all", params).then((res: any) => {
-    const records = res.data.data.page.records;
+    const { records, total } = res.data.data.page;
     if (params.type === "Post") {
       postRecords.value = records;
     } else if (params.type === "User") {
@@ -58,6 +73,7 @@ const loadData = (params: any) => {
     } else if (params.type === "Picture") {
       pictureRecords.value = records;
     }
+    totalItems.value = total; // 更新通用的总条目数
   });
 };
 
@@ -67,8 +83,8 @@ const activeKey = route.params.category;
 const initSearch = {
   type: activeKey,
   searchText: "",
-  page: "1",
-  pageSize: "10",
+  page: currentPage.value,
+  pageSize: pageSize.value,
 };
 
 const param = ref(initSearch);
@@ -103,5 +119,12 @@ const onSearch = () => {
 //切换tab栏时更新url
 const onChange = (value: string) => {
   router.push({ path: `/${value}`, query: param.value });
+};
+
+// 处理分页变化
+const handlePageChange = (newPage: any) => {
+  currentPage.value = newPage;
+  param.value.page = newPage; // 更新 param 中的 page 值
+  loadData(param.value);
 };
 </script>
